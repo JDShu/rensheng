@@ -25,6 +25,7 @@ class AppProtocol(LineReceiver):
             print "Invalid Command: %s" % line
 
     def dispatch_command(self, command_id, arg_list):
+        # 0:character_id.x_coord.y_coord.floor
         if command_id == CommandIds.MOVE:
             char_id = arg_list[0]
             coordinates = (arg_list[1], arg_list[2], arg_list[3])
