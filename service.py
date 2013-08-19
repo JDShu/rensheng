@@ -2,15 +2,6 @@ import json
 
 from game_state import GameState, decode_state
 
-class Result(object):
-    """
-    Message object that is returned to Service method caller.
-    """
-
-    def __init__(self, result_id, args):
-        self.id = result_id
-        self.args = args
-
 class Service(object):
     """
     Handles the game logic.
