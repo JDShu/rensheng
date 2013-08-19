@@ -8,8 +8,18 @@ from twisted.internet import stdio
 from service import decode_service
 from enums import ResultIds, CommandIds
 
+import text_menus
+
 commands = {"move" : CommandIds.MOVE,
             "interact" : CommandIds.INTERACT}
+
+def help_text(line_args):
+    if not line_args:
+        return text_menus.command_menu
+    elif line_args[0] in commands:
+        return text_menus.command_help[line_args[0]]
+    else:
+        return "No such command: %s" % line_args[0]
 
 class IOState():
     """ Track where in the interface we are """
@@ -20,10 +30,13 @@ class IOState():
         self.ready = False
 
     def handle_command(self, line):
+        line_args = line.split(" ")
         if self.current_command == None:
-            if line in commands:
+            if line_args[0] in commands:
                 self.current_command = commands[line]
                 return "command set to %s" % line
+            elif line_args[0] == "help":
+                return help_text(line_args[1:])
             else:
                 return "Invalid command!"
         elif self.current_command == CommandIds.MOVE:
@@ -42,7 +55,7 @@ class IOState():
             except ValueError:
                 return "Invalid move details. Format is <character id>,<x>,<y>,<floor>"
 
-class IOProtocol(LineReceiver):
+class IOProtocol(LineReceiver, object):
     from os import linesep as delimiter
 
     def __init__(self, app_factory):
@@ -61,6 +74,10 @@ class IOProtocol(LineReceiver):
             self.state.ready = False
             self.f.server.sendLine(self.state.message)
 
+    def sendLine(self, line):
+        super(IOProtocol, self).sendLine(line)
+        self.transport.write('>>> ')
+
 class AppProtocol(LineReceiver):
 
     def __init__(self):
@@ -70,7 +87,7 @@ class AppProtocol(LineReceiver):
         data = line.split(':', 1)
         response_id = int(data[0])
         if response_id == ResultIds.TICK:
-            if len(data[1].split(':')) > 1:
+            if commands_exist(data):
                 self.factory.io.sendLine("Server feedback: " + line)
         elif response_id == ResultIds.LOAD:
             self.factory.service = decode_service(data[1])
@@ -80,6 +97,9 @@ class AppProtocol(LineReceiver):
 
     def clientConnectionLost(self, connection, reason):
         print connection, reason
+
+def commands_exist(data):
+    return len(data[1].split(':')) > 1
 
 class AppFactory(ClientFactory):
 
