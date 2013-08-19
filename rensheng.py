@@ -17,6 +17,7 @@ class AppProtocol(LineReceiver):
         self.factory.clients.append(self)
 
     def lineReceived(self, line):
+        print "recieved command: %s" % line
         command = line.split('.')
         try:
             command_id = int(command[0])
@@ -25,13 +26,12 @@ class AppProtocol(LineReceiver):
             print "Invalid Command: %s" % line
 
     def dispatch_command(self, command_id, arg_list):
-        # 0.character_id.x_coord.y_coord.floor
+        # protocol: 0.character_id.x_coord.y_coord.floor
         if command_id == CommandIds.MOVE:
             char_id = arg_list[0]
             coordinates = (arg_list[1], arg_list[2], arg_list[3])
             result = self.factory.service.move(char_id, coordinates)
             self.handle_result(result)
-            print self.factory.command_buffer
         elif command_id == CommandIds.INTERACT:
             pass
         else:
@@ -41,7 +41,6 @@ class AppProtocol(LineReceiver):
         return "%d:%d" % (error.id, error.reason_id)
 
     def handle_result(self, result):
-        print "handling: ", result
         if result.id == ResultIds.ERROR:
             self.sendLine(self.transform_error(result))
         elif result.id == ResultIds.SUCCESS:
