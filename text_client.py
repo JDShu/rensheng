@@ -88,7 +88,9 @@ class AppProtocol(LineReceiver):
         response_id = int(data[0])
         if response_id == ResultIds.TICK:
             if commands_exist(data):
-                self.factory.io.sendLine("Server feedback: " + line)
+                commands = data[1].split(':')
+                self.factory.io.sendLine("Server message at tick %d: %s"
+                                         % (int(commands[0]), commands[1:] ))
         elif response_id == ResultIds.LOAD:
             self.factory.service = decode_service(data[1])
 
