@@ -55,7 +55,7 @@ class AppProtocol(LineReceiver):
         self.sendLine(data)
 
     def transform_result(self, result):
-        return ".".join([str(result.id)] + list(result.args))
+        return ".".join(map(str, result.args))
 
 class AppFactory(ServerFactory):
 
