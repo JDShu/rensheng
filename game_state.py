@@ -11,7 +11,9 @@ class GameState(object):
         self.house = House()
 
     def move_character(self, character_id, coordinates):
-        return Result(ResultIds.SUCCESS)
+        # assume no errors for now
+        r = Result(ResultIds.SUCCESS)
+        return r
 
     def serialize(self):
         return StateEncoder().encode(self)
