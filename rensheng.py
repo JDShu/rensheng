@@ -3,6 +3,7 @@ from twisted.protocols.basic import LineReceiver
 
 from enums import CommandIds, ResultIds
 from service import Service
+from command import parse_command
 
 TICK_DURATION = 0.2
 
@@ -18,20 +19,17 @@ class AppProtocol(LineReceiver):
 
     def lineReceived(self, line):
         print "recieved command: %s" % line
-        command = line.split('.')
         try:
-            command_id = int(command[0])
-            self.dispatch_command(command_id, command[1:])
+            command = parse_command(line)
+            self.dispatch_command(command)
         except (IndexError, ValueError):
             print "Invalid Command: %s" % line
 
-    def dispatch_command(self, command_id, arg_list):
+    def dispatch_command(self, command_obj):
         # protocol: 0.character_id.x_coord.y_coord.floor
-        if command_id == CommandIds.MOVE:
-            char_id = arg_list[0]
-            coordinates = (arg_list[1], arg_list[2], arg_list[3])
-            result = self.factory.service.move(char_id, coordinates)
-            self.handle_result(result)
+        if command_obj.id == CommandIds.MOVE:
+            result = self.factory.service.move(command_obj.character_id, command_obj.coordinates)
+            self.handle_result(result, command_obj)
         elif command_id == CommandIds.INTERACT:
             pass
         else:
@@ -40,18 +38,18 @@ class AppProtocol(LineReceiver):
     def transform_error(self, error):
         return "%d:%d" % (error.id, error.reason_id)
 
-    def handle_result(self, result):
+    def handle_result(self, result, command_obj):
         if result.id == ResultIds.ERROR:
             self.sendLine(self.transform_error(result))
         elif result.id == ResultIds.SUCCESS:
-            self.factory.command_buffer.append(self.transform_result(result))
+            self.factory.command_buffer.append(command_obj)
         else:
             print "send_result: Shouldn't be here!"
 
     def send_commands(self, command_buffer):
         tick = self.factory.service.tick
         data = ":".join(map(str,[ResultIds.TICK, tick])
-                        + [c for c in command_buffer])
+                        + [c.serialize() for c in command_buffer])
         self.sendLine(data)
 
     def transform_result(self, result):
@@ -75,7 +73,6 @@ class AppFactory(ServerFactory):
         for client in self.clients:
             client.send_commands(self.command_buffer)
         self.command_buffer = []
-
 
 if __name__ == '__main__':
 
