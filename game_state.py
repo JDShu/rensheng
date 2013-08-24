@@ -4,6 +4,7 @@ from house import HouseEncoder, House, decode_house
 from character import CharacterEncoder, decode_characters
 from result import Result
 from enums import ResultIds
+
 class GameState(object):
 
     def __init__(self):
