@@ -45,6 +45,10 @@ class Character(object):
         self.position = (x1 + unit_x*self.speed, y1 + unit_y*self.speed)
 
 def decode_characters(json_data):
+    """
+    Expects an array of properly formated characters
+    """
+
     characters = {}
     for cid, data in json_data.iteritems():
         characters[int(cid)] = Character(data[u'name'])
