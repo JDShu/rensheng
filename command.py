@@ -7,8 +7,8 @@ class Command(object):
 
 class MoveCommand(Command):
     def __init__(self, command_id, character_id, x, y, floor):
-        self.id = command_id
-        self.character_id = character_id
+        self.id = int(command_id)
+        self.character_id = int(character_id)
         self.x = float(x)
         self.y = float(y)
         self.floor = int(floor)
@@ -18,7 +18,7 @@ class MoveCommand(Command):
         return (self.x, self.y, self.floor)
 
     def serialize(self):
-        return "%d.%d.%f.%f.%d" % self.coordinates
+        return "%d;%d;%f;%f;%d" % (self.id, self.character_id, self.x, self.y, self.floor)
 
     def validate(self):
         return
