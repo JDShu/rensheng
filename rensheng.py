@@ -39,9 +39,9 @@ class AppProtocol(LineReceiver):
         return "%d:%d" % (error.id, error.reason_id)
 
     def handle_result(self, result, command_obj):
-        if result.id == ResultIds.ERROR:
+        if result.is_error:
             self.sendLine(self.transform_error(result))
-        elif result.id == ResultIds.SUCCESS:
+        elif result.is_success:
             self.factory.command_buffer.append(command_obj)
         else:
             print "send_result: Shouldn't be here!"
