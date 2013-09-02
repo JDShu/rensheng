@@ -6,7 +6,7 @@ from twisted.protocols.basic import LineReceiver
 from twisted.internet import stdio
 
 from service import decode_service
-from enums import ResultIds, CommandIds
+from enums import MessageIds, CommandIds
 
 import text_menus
 
@@ -86,12 +86,12 @@ class AppProtocol(LineReceiver):
     def lineReceived(self, line):
         data = line.split(':', 1)
         response_id = int(data[0])
-        if response_id == ResultIds.TICK:
+        if response_id == MessageIds.TICK:
             if commands_exist(data):
                 commands = data[1].split(':')
                 self.factory.io.sendLine("Server message at tick %d: %s"
                                          % (int(commands[0]), commands[1:] ))
-        elif response_id == ResultIds.LOAD:
+        elif response_id == MessageIds.LOAD:
             self.factory.service = decode_service(data[1])
 
     def connectionMade(self):
