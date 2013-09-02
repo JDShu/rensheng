@@ -5,6 +5,7 @@ class Command(object):
         self.id = command_id
         self.args = args
 
+# protocol: 0;character_id;x_coord;y_coord;floor
 class MoveCommand(Command):
     def __init__(self, command_id, character_id, x, y, floor):
         self.id = int(command_id)
