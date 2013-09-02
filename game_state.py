@@ -1,5 +1,6 @@
 import json
 
+import graph_2d
 from house import HouseEncoder, House, decode_house
 from character import CharacterEncoder, decode_characters
 from result import Result
@@ -10,10 +11,19 @@ class GameState(object):
     def __init__(self):
         self.characters = {}
         self.house = House()
+        self.pathfinding_grid = None
 
     def move_character(self, character_id, coordinates):
-        # assume no errors for now
-        r = Result(ResultIds.SUCCESS)
+        # get the current graph and add the current character's position as a node
+        graph = self.pathfinding_grid.copy()
+        # use the graph's shortest path method
+        try:
+            p = graph.shortest_path(self.characters[character_id].position, coordinates)
+            return Result(ResultIds.SUCCESS)
+        # if it is not reachable, set the result to a failure
+        except graph_2d.ImpossiblePath:
+        # otherwise set the result to success
+            return Result(ResultIds.ERROR)
         return r
 
     def serialize(self):
