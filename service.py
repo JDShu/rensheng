@@ -10,7 +10,6 @@ class Service(object):
     def __init__(self):
         self.state = None
         self.tick = 0
-        self.command_buffer = []
 
     def new_game(self):
         self.state = GameState()
@@ -24,6 +23,15 @@ class Service(object):
 
     def inc_tick(self):
         self.tick += 1
+
+    def dispatch_command(self, command_obj):
+        if command_obj.id == CommandIds.MOVE:
+            result = self.move(command_obj.character_id, command_obj.coordinates)
+            return result
+        elif command_id == CommandIds.INTERACT:
+            pass
+        else:
+            pass
 
 def decode_service(json_string):
     s = Service()
