@@ -1,7 +1,8 @@
 from twisted.internet.protocol import ServerFactory
 from twisted.protocols.basic import LineReceiver
 
-from enums import CommandIds, ResultIds
+import messages
+from enums import CommandIds
 from service import Service
 from command import parse_command
 
@@ -13,27 +14,17 @@ class AppProtocol(LineReceiver):
         pass
 
     def connectionMade(self):
-        data = self.factory.service.state.serialize()
-        self.sendLine(str(ResultIds.LOAD) + ':' + data)
+        data = messages.game_data(self.factory.service.state.serialize())
         self.factory.clients.append(self)
 
     def lineReceived(self, line):
         print "recieved command: %s" % line
         try:
             command = parse_command(line)
-            self.dispatch_command(command)
+            result = self.factory.service.process_command(command)
+            self.handle_result(result)
         except (IndexError, ValueError):
             print "Invalid Command: %s" % line
-
-    def dispatch_command(self, command_obj):
-        # protocol: 0.character_id.x_coord.y_coord.floor
-        if command_obj.id == CommandIds.MOVE:
-            result = self.factory.service.move(command_obj.character_id, command_obj.coordinates)
-            self.handle_result(result, command_obj)
-        elif command_id == CommandIds.INTERACT:
-            pass
-        else:
-            pass
 
     def transform_error(self, error):
         return "%d:%d" % (error.id, error.reason_id)
@@ -48,8 +39,7 @@ class AppProtocol(LineReceiver):
 
     def send_commands(self, command_buffer):
         tick = self.factory.service.tick
-        data = ":".join(map(str,[ResultIds.TICK, tick])
-                        + [c.serialize() for c in command_buffer])
+        data = messages.tick_message(tick, command_buffer)
         self.sendLine(data)
 
     def transform_result(self, result):
