@@ -3,6 +3,7 @@ from twisted.trial import unittest
 import game_state
 import graph_2d
 import character
+import service
 from enums import ResultIds
 
 class MoveTest(unittest.TestCase):
@@ -29,3 +30,21 @@ class MoveTest(unittest.TestCase):
         g.characters[0] = c
         r = g.move_character(0, (2,3))
         self.assertFalse(r.is_success)
+
+class MoveServiceTest(unittest.TestCase):
+    """
+    Test the movement elements of the service object
+    """
+
+    def test_service_move_simple(self):
+        s = service.Service()
+        s.state = game_state.GameState()
+        s.state.pathfinding_grid = graph_2d.SquareGraph(3,3)
+        s.state.characters = { 0 : character.Character("Bob") }
+        # character id, destination coordinate
+        r = s.move(0, (2,2))
+
+        for _ in xrange(200):
+            s.inc_tick()
+
+        self.assertEqual(s.character_location(0), (2,2))

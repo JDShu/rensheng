@@ -23,11 +23,12 @@ class Character(object):
         Character.current_max += 1
         self.name = name
         self.position = (0, 0)
-        self.speed = 1
+        self.speed = 0.1
 
     def move_toward(self, destination):
-        if self.position == destination:
-            return
+        """ Returns True if arrived at destination """
+
+        original_position = self.position
 
         x1, y1 = self.position
         x2, y2 = destination
@@ -37,12 +38,13 @@ class Character(object):
 
         if mag < self.speed:
             self.position = destination
-            return
+            return True
 
         unit_x = x/mag
         unit_y = y/mag
 
         self.position = (x1 + unit_x*self.speed, y1 + unit_y*self.speed)
+        return False
 
 def decode_characters(json_data):
     """

@@ -18,10 +18,14 @@ class Service(object):
         result = self.state.move_character(character_id, coordinates)
         return result
 
+    def character_location(self, character_id):
+        return self.state.character_location(character_id)
+
     def interact(self):
         pass
 
     def inc_tick(self):
+        self.state.progress()
         self.tick += 1
 
     def dispatch_command(self, command_obj):
