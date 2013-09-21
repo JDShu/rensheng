@@ -42,6 +42,20 @@ class MoveServiceTest(unittest.TestCase):
         s.state.pathfinding_grid = graph_2d.SquareGraph(3,3)
         s.state.characters = { 0 : character.Character("Bob") }
         # character id, destination coordinate
+        r = s.move(0, (1,0))
+
+        for _ in xrange(20):
+            s.inc_tick()
+
+        self.assertEqual(s.character_location(0), (1,0))
+
+
+    def test_service_move_long(self):
+        s = service.Service()
+        s.state = game_state.GameState()
+        s.state.pathfinding_grid = graph_2d.SquareGraph(3,3)
+        s.state.characters = { 0 : character.Character("Bob") }
+        # character id, destination coordinate
         r = s.move(0, (2,2))
 
         for _ in xrange(200):

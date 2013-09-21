@@ -17,7 +17,7 @@ def path_length(path):
     return sum(graph_2d.euclidean(first, second) for first, second in pairwise(path))
 
 def calculate_move_lifespan(character, path):
-    return path_length(path)/character.speed
+    return path_length(path)/character.speed + 1
 
 class Delta(object):
     """
@@ -31,7 +31,6 @@ class Delta(object):
             self.args = None
 
     def update(self):
-        print "l", self.lifespan
         self.lifespan -= 1
         self.change_function()
 
@@ -52,8 +51,6 @@ class MoveDelta(Delta):
         arrived = self.character.move_toward(current_destination)
         if arrived:
             self.path = self.path[1:]
-            print "lifespan: ", self.lifespan
-
 
 class GameState(object):
 
